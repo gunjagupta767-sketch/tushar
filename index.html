@@ -1,0 +1,3604 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finora — Financial Operating System</title>
+
+<style>
+:root{
+  --bg:#070b12;
+  --bg2:#0b111b;
+  --panel:#0e1622;
+  --panel2:#111c2b;
+  --panel3:#152235;
+  --border:rgba(255,255,255,.09);
+  --border2:rgba(255,255,255,.14);
+  --text:#f3f6fb;
+  --muted:#91a0b4;
+  --green:#67e6b5;
+  --blue:#7da9ff;
+  --purple:#a68cff;
+  --yellow:#ffd166;
+  --red:#ff7180;
+  --cyan:#63d7ff;
+  --shadow:0 20px 60px rgba(0,0,0,.28);
+  --radius:18px;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 75% -10%,rgba(85,120,255,.08),transparent 28%),
+    radial-gradient(circle at 10% 30%,rgba(78,220,175,.035),transparent 25%),
+    var(--bg);
+  color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  min-height:100vh;
+}
+
+button,input,select{font:inherit}
+button{cursor:pointer}
+
+.app{
+  display:flex;
+  min-height:100vh;
+}
+
+/* ================= SIDEBAR ================= */
+
+.sidebar{
+  width:245px;
+  border-right:1px solid var(--border);
+  background:rgba(7,11,18,.92);
+  backdrop-filter:blur(18px);
+  position:fixed;
+  inset:0 auto 0 0;
+  z-index:50;
+  padding:22px 14px;
+  display:flex;
+  flex-direction:column;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:5px 12px 26px;
+}
+
+.logo{
+  width:35px;
+  height:35px;
+  border-radius:11px;
+  display:grid;
+  place-items:center;
+  font-weight:800;
+  background:linear-gradient(135deg,#7ae7bd,#7aa8ff);
+  color:#071019;
+  box-shadow:0 8px 28px rgba(103,230,181,.18);
+}
+
+.brand strong{
+  font-size:19px;
+  letter-spacing:-.5px;
+}
+
+.brand small{
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  margin-top:1px;
+}
+
+.nav{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  overflow:auto;
+}
+
+.nav button{
+  border:0;
+  background:transparent;
+  color:#8f9db0;
+  padding:10px 12px;
+  border-radius:11px;
+  text-align:left;
+  transition:.18s ease;
+  font-size:13px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.nav button:hover{
+  background:rgba(255,255,255,.045);
+  color:#fff;
+  transform:translateX(2px);
+}
+
+.nav button.active{
+  background:rgba(125,169,255,.10);
+  color:#fff;
+  box-shadow:inset 2px 0 var(--blue);
+}
+
+.nav .section-label{
+  font-size:9px;
+  letter-spacing:1.5px;
+  color:#536176;
+  margin:16px 12px 5px;
+  text-transform:uppercase;
+}
+
+.sidebar-footer{
+  margin-top:auto;
+  padding:12px;
+  border-top:1px solid var(--border);
+  color:#607086;
+  font-size:10px;
+  line-height:1.6;
+}
+
+/* ================= MAIN ================= */
+
+.main{
+  margin-left:245px;
+  width:calc(100% - 245px);
+  min-width:0;
+}
+
+.topbar{
+  height:72px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 34px;
+  position:sticky;
+  top:0;
+  z-index:40;
+  background:rgba(7,11,18,.82);
+  backdrop-filter:blur(18px);
+}
+
+.page-title{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.page-title h1{
+  margin:0;
+  font-size:18px;
+  letter-spacing:-.3px;
+}
+
+.page-title span{
+  color:var(--muted);
+  font-size:12px;
+}
+
+.top-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.icon-btn,.ghost-btn,.primary-btn{
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.035);
+  color:#dce4ee;
+  padding:8px 11px;
+  border-radius:9px;
+  transition:.18s ease;
+}
+
+.icon-btn:hover,.ghost-btn:hover{
+  border-color:var(--border2);
+  background:rgba(255,255,255,.07);
+}
+
+.primary-btn{
+  background:#e9eef7;
+  color:#071019;
+  border-color:#e9eef7;
+  font-weight:700;
+}
+
+.primary-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 8px 25px rgba(255,255,255,.08);
+}
+
+.content{
+  padding:30px 34px 60px;
+  max-width:1550px;
+}
+
+/* ================= GENERAL ================= */
+
+.page{
+  display:none;
+  animation:pageIn .25s ease;
+}
+
+.page.active{display:block}
+
+@keyframes pageIn{
+  from{opacity:0;transform:translateY(5px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.grid{
+  display:grid;
+  gap:14px;
+}
+
+.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+
+.panel{
+  background:linear-gradient(180deg,rgba(18,29,44,.86),rgba(11,19,30,.86));
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:20px;
+}
+
+.panel:hover{
+  border-color:rgba(255,255,255,.12);
+}
+
+.panel-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:15px;
+  margin-bottom:18px;
+}
+
+.panel-head h2,.panel-head h3{
+  margin:0;
+  font-size:14px;
+  letter-spacing:-.2px;
+}
+
+.panel-head p{
+  margin:5px 0 0;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.5;
+}
+
+.eyebrow{
+  color:#708096;
+  text-transform:uppercase;
+  letter-spacing:1.3px;
+  font-size:9px;
+  font-weight:700;
+}
+
+.big-number{
+  font-size:31px;
+  font-weight:760;
+  letter-spacing:-1.5px;
+}
+
+.muted{color:var(--muted)}
+.green{color:var(--green)}
+.blue{color:var(--blue)}
+.red{color:var(--red)}
+.yellow{color:var(--yellow)}
+.cyan{color:var(--cyan)}
+.purple{color:var(--purple)}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:9px;
+  border:1px solid var(--border);
+  color:#aab8ca;
+}
+
+.badge.green{
+  background:rgba(103,230,181,.07);
+  border-color:rgba(103,230,181,.18);
+}
+
+.badge.red{
+  background:rgba(255,113,128,.07);
+  border-color:rgba(255,113,128,.18);
+}
+
+.badge.yellow{
+  background:rgba(255,209,102,.07);
+  border-color:rgba(255,209,102,.18);
+}
+
+.progress{
+  height:6px;
+  background:#202b3a;
+  border-radius:99px;
+  overflow:hidden;
+}
+
+.progress span{
+  display:block;
+  height:100%;
+  width:0;
+  border-radius:inherit;
+  background:linear-gradient(90deg,var(--green),var(--blue));
+  transition:width .7s cubic-bezier(.2,.8,.2,1);
+}
+
+.divider{
+  height:1px;
+  background:var(--border);
+  margin:18px 0;
+}
+
+/* ================= COMMAND CENTER ================= */
+
+.hero{
+  display:grid;
+  grid-template-columns:1.4fr .8fr;
+  gap:14px;
+  margin-bottom:14px;
+}
+
+.hero-main{
+  min-height:235px;
+  position:relative;
+  overflow:hidden;
+}
+
+.hero-main:after{
+  content:"";
+  position:absolute;
+  width:250px;
+  height:250px;
+  border-radius:50%;
+  border:1px solid rgba(125,169,255,.08);
+  right:-80px;
+  bottom:-120px;
+}
+
+.health-row{
+  display:flex;
+  align-items:center;
+  gap:24px;
+}
+
+.health-ring{
+  width:115px;
+  height:115px;
+  border-radius:50%;
+  background:conic-gradient(var(--green) 0 76%,#202b39 76% 100%);
+  display:grid;
+  place-items:center;
+  flex:none;
+}
+
+.health-ring:after{
+  content:"";
+  width:91px;
+  height:91px;
+  border-radius:50%;
+  background:#0d1724;
+  position:absolute;
+}
+
+.health-score{
+  position:relative;
+  z-index:1;
+  text-align:center;
+}
+
+.health-score strong{
+  display:block;
+  font-size:27px;
+}
+
+.health-score span{
+  font-size:9px;
+  color:var(--muted);
+}
+
+.attention{
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+}
+
+.attention-item{
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:13px;
+  display:grid;
+  grid-template-columns:8px 1fr auto;
+  gap:11px;
+  align-items:start;
+  background:rgba(255,255,255,.018);
+  transition:.18s ease;
+}
+
+.attention-item:hover{
+  transform:translateX(3px);
+  background:rgba(255,255,255,.035);
+}
+
+.dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  margin-top:5px;
+  background:var(--yellow);
+}
+
+.dot.red{background:var(--red)}
+.dot.green{background:var(--green)}
+.dot.blue{background:var(--blue)}
+
+.attention-item strong{
+  font-size:12px;
+}
+
+.attention-item p{
+  margin:4px 0 0;
+  font-size:10px;
+  color:var(--muted);
+  line-height:1.45;
+}
+
+.attention-item button{
+  background:none;
+  border:0;
+  color:var(--blue);
+  font-size:10px;
+}
+
+/* ================= METRICS ================= */
+
+.metric-card{
+  min-height:130px;
+}
+
+.metric-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.metric-icon{
+  width:28px;
+  height:28px;
+  border-radius:8px;
+  display:grid;
+  place-items:center;
+  background:rgba(255,255,255,.05);
+  color:#b9c7d8;
+  font-size:12px;
+}
+
+.metric-card .big-number{
+  margin-top:15px;
+}
+
+.metric-bottom{
+  display:flex;
+  justify-content:space-between;
+  color:var(--muted);
+  font-size:10px;
+  margin-top:7px;
+}
+
+/* ================= TABLE ================= */
+
+.table-wrap{
+  overflow:auto;
+  border:1px solid var(--border);
+  border-radius:12px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:650px;
+}
+
+th,td{
+  padding:12px 13px;
+  border-bottom:1px solid var(--border);
+  text-align:left;
+  font-size:11px;
+}
+
+th{
+  color:#718197;
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  font-weight:700;
+  background:rgba(255,255,255,.018);
+}
+
+tr:last-child td{border-bottom:0}
+
+td strong{font-size:11px}
+
+/* ================= FORMS ================= */
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+
+.form-grid.three{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.field label{
+  color:#8391a4;
+  font-size:10px;
+}
+
+.field input,.field select{
+  width:100%;
+  border:1px solid var(--border);
+  outline:none;
+  background:#0a121e;
+  color:#eef3f9;
+  padding:10px 11px;
+  border-radius:9px;
+  transition:.18s ease;
+}
+
+.field input:focus,.field select:focus{
+  border-color:rgba(125,169,255,.45);
+  box-shadow:0 0 0 3px rgba(125,169,255,.06);
+}
+
+.form-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:15px;
+}
+
+/* ================= GOALS ================= */
+
+.goal-card{
+  position:relative;
+  overflow:hidden;
+}
+
+.goal-card.priority{
+  border-color:rgba(103,230,181,.18);
+}
+
+.goal-head{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.goal-amount{
+  font-size:22px;
+  font-weight:750;
+  margin:10px 0;
+}
+
+.goal-meta{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin:14px 0;
+}
+
+.goal-meta div{
+  padding:9px;
+  border-radius:9px;
+  background:rgba(255,255,255,.025);
+}
+
+.goal-meta span{
+  display:block;
+  font-size:9px;
+  color:var(--muted);
+}
+
+.goal-meta strong{
+  display:block;
+  margin-top:4px;
+  font-size:11px;
+}
+
+.scenario{
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  margin-top:9px;
+}
+
+.scenario-head{
+  display:flex;
+  justify-content:space-between;
+  font-size:10px;
+}
+
+.scenario-value{
+  margin-top:6px;
+  font-size:17px;
+  font-weight:700;
+}
+
+/* ================= CHARTS ================= */
+
+.chart{
+  height:190px;
+  display:flex;
+  align-items:flex-end;
+  gap:8px;
+  padding:15px 3px 3px;
+}
+
+.bar-wrap{
+  flex:1;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  gap:7px;
+  align-items:center;
+}
+
+.bar{
+  width:100%;
+  max-width:35px;
+  min-height:3px;
+  border-radius:6px 6px 2px 2px;
+  background:linear-gradient(180deg,var(--blue),rgba(125,169,255,.25));
+  transition:height .6s ease;
+}
+
+.bar.negative{
+  background:linear-gradient(180deg,var(--red),rgba(255,113,128,.25));
+}
+
+.bar-label{
+  color:#65758a;
+  font-size:8px;
+}
+
+/* ================= MONEY MAP ================= */
+
+.money-map{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+.map-total{
+  padding:20px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:rgba(255,255,255,.018);
+}
+
+.asset-row{
+  margin-top:14px;
+}
+
+.asset-line{
+  display:flex;
+  justify-content:space-between;
+  font-size:11px;
+  margin-bottom:7px;
+}
+
+.asset-bar{
+  height:7px;
+  border-radius:99px;
+  background:#202b39;
+  overflow:hidden;
+}
+
+.asset-bar span{
+  display:block;
+  height:100%;
+  background:var(--blue);
+  border-radius:inherit;
+  transition:width .6s ease;
+}
+
+/* ================= PROBLEM CENTER ================= */
+
+.problem-card{
+  border-left:3px solid var(--yellow);
+}
+
+.problem-card.red-border{border-left-color:var(--red)}
+.problem-card.green-border{border-left-color:var(--green)}
+.problem-card.blue-border{border-left-color:var(--blue)}
+
+.problem-card h3{
+  margin:7px 0;
+  font-size:14px;
+}
+
+.problem-card p{
+  font-size:11px;
+  line-height:1.6;
+  color:var(--muted);
+  margin:0;
+}
+
+.action-box{
+  margin-top:14px;
+  padding:10px;
+  border-radius:9px;
+  background:rgba(125,169,255,.05);
+  color:#b8c9e2;
+  font-size:10px;
+}
+
+/* ================= GUIDE ================= */
+
+.guide-box{
+  min-height:300px;
+  display:flex;
+  flex-direction:column;
+}
+
+.chat{
+  flex:1;
+  min-height:220px;
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+  overflow:auto;
+  margin-bottom:12px;
+}
+
+.msg{
+  max-width:80%;
+  padding:10px 12px;
+  border-radius:11px;
+  font-size:11px;
+  line-height:1.5;
+}
+
+.msg.ai{
+  align-self:flex-start;
+  background:#152235;
+  color:#d7e0eb;
+}
+
+.msg.user{
+  align-self:flex-end;
+  background:#e9eef7;
+  color:#08101a;
+}
+
+.guide-input{
+  display:flex;
+  gap:7px;
+}
+
+.guide-input input{
+  flex:1;
+  border:1px solid var(--border);
+  background:#09111c;
+  color:#fff;
+  padding:10px;
+  border-radius:9px;
+  outline:none;
+}
+
+/* ================= TOAST ================= */
+
+.toast-container{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  z-index:100;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.toast{
+  background:#121d2b;
+  border:1px solid var(--border2);
+  color:#eaf0f7;
+  padding:11px 14px;
+  border-radius:10px;
+  font-size:11px;
+  box-shadow:var(--shadow);
+  animation:toastIn .25s ease;
+}
+
+@keyframes toastIn{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:none}
+}
+
+/* ================= MODAL ================= */
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.62);
+  backdrop-filter:blur(7px);
+  z-index:90;
+  display:none;
+  place-items:center;
+  padding:20px;
+}
+
+.modal.open{display:grid}
+
+.modal-card{
+  width:min(650px,100%);
+  max-height:90vh;
+  overflow:auto;
+  background:#0e1724;
+  border:1px solid var(--border2);
+  border-radius:18px;
+  padding:22px;
+  box-shadow:0 30px 100px rgba(0,0,0,.55);
+  animation:modalIn .22s ease;
+}
+
+@keyframes modalIn{
+  from{opacity:0;transform:translateY(12px) scale(.98)}
+  to{opacity:1;transform:none}
+}
+
+.modal-head{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:18px;
+}
+
+/* ================= MOBILE ================= */
+
+.mobile-nav{
+  display:none;
+}
+
+@media(max-width:1050px){
+  .sidebar{width:205px}
+  .main{margin-left:205px;width:calc(100% - 205px)}
+  .hero{grid-template-columns:1fr}
+  .grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .money-map{grid-template-columns:1fr}
+}
+
+@media(max-width:760px){
+  .sidebar{display:none}
+  .main{margin-left:0;width:100%}
+  .topbar{
+    height:62px;
+    padding:0 15px;
+  }
+  .content{padding:18px 14px 90px}
+  .top-actions .ghost-btn{display:none}
+  .page-title span{display:none}
+  .grid-2,.grid-3,.grid-4,
+  .form-grid,.form-grid.three{
+    grid-template-columns:1fr;
+  }
+  .health-row{align-items:flex-start}
+  .health-ring{width:92px;height:92px}
+  .health-ring:after{width:72px;height:72px}
+  .health-score strong{font-size:22px}
+  .big-number{font-size:26px}
+  .mobile-nav{
+    display:flex;
+    position:fixed;
+    left:10px;
+    right:10px;
+    bottom:10px;
+    z-index:80;
+    background:rgba(12,20,31,.94);
+    border:1px solid var(--border2);
+    border-radius:15px;
+    padding:7px;
+    backdrop-filter:blur(18px);
+    justify-content:space-around;
+    box-shadow:0 20px 50px rgba(0,0,0,.4);
+  }
+  .mobile-nav button{
+    border:0;
+    background:none;
+    color:#718197;
+    font-size:9px;
+    padding:8px 9px;
+  }
+  .mobile-nav button.active{color:#fff}
+  .goal-meta{grid-template-columns:1fr 1fr}
+}
+
+/* reduced motion */
+@media(prefers-reduced-motion:reduce){
+  *{scroll-behavior:auto!important;animation:none!important;transition:none!important}
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<aside class="sidebar">
+  <div class="brand">
+    <div class="logo">F</div>
+    <div>
+      <strong>Finora</strong>
+      <small>Financial Operating System</small>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <div class="section-label">Core</div>
+    <button class="active" data-page="dashboard">◈ <span>Command Center</span></button>
+    <button data-page="money">◌ <span>Money Map</span></button>
+    <button data-page="cashflow">↗ <span>Cash Flow</span></button>
+
+    <div class="section-label">Planning</div>
+    <button data-page="goals">◎ <span>Goals</span></button>
+    <button data-page="investments">◫ <span>Investments</span></button>
+    <button data-page="decisions">◇ <span>Decision Engine</span></button>
+
+    <div class="section-label">Problems</div>
+    <button data-page="problems">! <span>Problem Center</span></button>
+    <button data-page="receivables">₹ <span>Receivables</span></button>
+    <button data-page="expenses">− <span>Expenses</span></button>
+    <button data-page="emergency">□ <span>Emergency Fund</span></button>
+    <button data-page="debt">↘ <span>Debt Pressure</span></button>
+
+    <div class="section-label">Business</div>
+    <button data-page="profit">▣ <span>Real Profit</span></button>
+
+    <div class="section-label">Tools</div>
+    <button data-page="calculators">⌁ <span>Calculators</span></button>
+    <button data-page="guide">? <span>Finora Guide</span></button>
+    <button onclick="openDataModal()">⚙ <span>Data & Settings</span></button>
+  </nav>
+
+  <div class="sidebar-footer">
+    Local-first prototype<br>
+    Your financial data stays in this browser.
+  </div>
+</aside>
+
+<main class="main">
+
+<header class="topbar">
+  <div class="page-title">
+    <h1 id="pageTitle">Command Center</h1>
+    <span id="pageSubtitle">Your financial cockpit</span>
+  </div>
+
+  <div class="top-actions">
+    <button class="ghost-btn" onclick="openDataModal()">Data</button>
+    <button class="primary-btn" onclick="openQuickAction()">+ Add</button>
+  </div>
+</header>
+
+<div class="content">
+
+<!-- ================= DASHBOARD ================= -->
+
+<section class="page active" id="dashboard">
+
+  <div class="hero">
+
+    <div class="panel hero-main">
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">Financial cockpit</div>
+          <h2 style="margin-top:5px;font-size:21px">Know what your money is doing.</h2>
+          <p>Finora connects your cash, goals, obligations and decisions into one operating view.</p>
+        </div>
+        <span class="badge green">Local data</span>
+      </div>
+
+      <div class="health-row">
+        <div class="health-ring">
+          <div class="health-score">
+            <strong id="healthScore">76</strong>
+            <span>/ 100</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="eyebrow">Financial Health</div>
+          <div style="font-size:18px;font-weight:700;margin:5px 0">Stable, with pressure points</div>
+          <p class="muted" style="font-size:11px;line-height:1.6;max-width:480px">
+            Your cash position is positive, but receivables and reserve coverage deserve attention.
+            Health is a Finora diagnostic, not a financial grade.
+          </p>
+          <button class="ghost-btn" onclick="go('problems')">Inspect pressure points →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">Priority queue</div>
+          <h2 style="margin-top:5px">What needs attention</h2>
+        </div>
+        <span class="badge">Live</span>
+      </div>
+
+      <div class="attention" id="attentionList"></div>
+    </div>
+
+  </div>
+
+  <div class="grid grid-4" id="dashboardMetrics"></div>
+
+  <div class="grid grid-2" style="margin-top:14px">
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">Cash intelligence</div>
+          <h2>6-month cash outlook</h2>
+          <p>Projected cash after recurring flows and planned obligations.</p>
+        </div>
+        <button class="ghost-btn" onclick="go('cashflow')">Open →</button>
+      </div>
+      <div class="chart" id="dashboardChart"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">Goal momentum</div>
+          <h2>Your capital is moving somewhere</h2>
+          <p>Track funded progress instead of only looking at a target number.</p>
+        </div>
+        <button class="ghost-btn" onclick="go('goals')">Goals →</button>
+      </div>
+      <div id="dashboardGoals"></div>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ================= MONEY MAP ================= -->
+
+<section class="page" id="money">
+
+  <div class="panel-head">
+    <div>
+      <div class="eyebrow">Money Map</div>
+      <h2 style="font-size:23px;margin-top:6px">Where does your money actually live?</h2>
+      <p class="muted">See assets, liabilities and concentration in one balance-sheet view.</p>
+    </div>
+  </div>
+
+  <div class="money-map">
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Assets</h2>
+          <p>Everything currently owned or expected to be received.</p>
+        </div>
+        <span class="badge green">Assets</span>
+      </div>
+
+      <div id="assetInputs"></div>
+
+      <div class="divider"></div>
+
+      <div class="map-total">
+        <div class="eyebrow">Total Assets</div>
+        <div class="big-number green" id="totalAssets">₹0</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Liabilities</h2>
+          <p>Obligations that reduce your net worth.</p>
+        </div>
+        <span class="badge red">Liabilities</span>
+      </div>
+
+      <div id="liabilityInputs"></div>
+
+      <div class="divider"></div>
+
+      <div class="map-total">
+        <div class="eyebrow">Net Worth</div>
+        <div class="big-number" id="netWorth">₹0</div>
+        <div class="muted" style="font-size:10px;margin-top:4px">
+          Total assets − total liabilities
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="panel" style="margin-top:14px">
+    <div class="panel-head">
+      <div>
+        <div class="eyebrow">Concentration</div>
+        <h2>Asset allocation</h2>
+        <p>A visual answer to: “Where is most of my money concentrated?”</p>
+      </div>
+    </div>
+    <div id="assetConcentration"></div>
+  </div>
+
+</section>
+
+
+<!-- ================= CASH FLOW ================= -->
+
+<section class="page" id="cashflow">
+
+  <div class="panel-head">
+    <div>
+      <div class="eyebrow">Cash Flow</div>
+      <h2 style="font-size:23px;margin-top:6px">Will your cash survive the next few months?</h2>
+      <p class="muted">Cash-flow forecasting is about timing, not just profitability.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-4" id="cashMetrics"></div>
+
+  <div class="grid grid-2" style="margin-top:14px">
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Monthly operating inputs</h2>
+          <p>Change assumptions and immediately see the effect.</p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Starting cash</label>
+          <input id="cfCash" type="number">
+        </div>
+        <div class="field">
+          <label>Monthly inflow</label>
+          <input id="cfInflow" type="number">
+        </div>
+        <div class="field">
+          <label>Fixed expenses</label>
+          <input id="cfFixed" type="number">
+        </div>
+        <div class="field">
+          <label>Variable expenses</label>
+          <input id="cfVariable" type="number">
+        </div>
+        <div class="field">
+          <label>Monthly debt payment</label>
+          <input id="cfDebt" type="number">
+        </div>
+        <div class="field">
+          <label>One-time payment next month</label>
+          <input id="cfOneTime" type="number">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="primary-btn" onclick="saveCashFlow()">Update forecast</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Forecast</h2>
+          <p>Red months indicate projected cash pressure.</p>
+        </div>
+      </div>
+      <div class="chart" id="cashChart"></div>
+    </div>
+
+  </div>
+
+  <div class="panel" style="margin-top:14px">
+    <div class="panel-head">
+      <div>
+        <h2>Cash forecast table</h2>
+        <p>Projected ending cash under your current assumptions.</p>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th>Opening</th>
+            <th>Inflow</th>
+            <th>Outflow</th>
+            <th>Net Change</th>
+            <th>Ending Cash</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="cashTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ================= GOALS ================= -->
+
+<section class="page" id="goals">
+
+  <div class="panel-head">
+    <div>
+      <div class="eyebrow">Goals 2.0</div>
+      <h2 style="font-size:23px;margin-top:6px">Turn ambition into a funding system.</h2>
+      <p class="muted">Finora separates inflation, contributions and assumed investment growth.</p>
+    </div>
+    <button class="primary-btn" onclick="openGoalModal()">+ New goal</button>
+  </div>
+
+  <div id="goalSummary" class="grid grid-4" style="margin-bottom:14px"></div>
+
+  <div class="grid grid-2" id="goalGrid"></div>
+
+</section>
+
+
+<!-- ================= INVESTMENTS ================= -->
+
+<section class="page" id="investments">
+
+  <div class="panel-head">
+    <div>
+      <div class="eyebrow">Investments</div>
+      <h2 style="font-size:23px;margin-top:6px">Growth should serve a purpose.</h2>
+      <p class="muted">This prototype tracks investment progress through goal assumptions rather than live market data.</p>
+    </div>
+    <span class="badge yellow">No live market API</span>
+  </div>
+
+  <div class="grid grid-3">
+
+    <div class="panel metric-card">
+      <div class="eyebrow">Goal-linked capital</div>
+      <div class="big-number green" id="investedCapital">₹0</div>
+      <div class="metric-bottom"><span>Current goal corpus</span><span>Local data</span></div>
+    </div>
+
+    <div class="panel metric-card">
+      <div class="eyebrow">Projected corpus</div>
+      <div class="big-number blue" id="projectedCapital">₹0</div>
+      <div class="metric-bottom"><span>Under assumptions</span><span>Illustrative</span></div>
+    </div>
+
+    <div class="panel metric-card">
+      <div class="eyebrow">Estimated growth</div>
+      <div class="big-number purple" id="growthCapital">₹0</div>
+      <div class="metric-bottom"><span>Projection − current + contributions</span><span>Estimate</span></div>
+    </div>
+
+  </div>
+
+  <div class="panel" style="margin-top:14px">
+    <div class="panel-head">
+      <div>
+        <h2>Goal-linked investment view</h2>
+        <p>Returns shown here are assumptions, not guarantees.</p>
+      </div>
+    </div>
+    <div id="investmentGoals"></div>
+  </div>
+
+</section>
+
+
+<!-- ================= PROBLEMS ================= -->
+
+<section class="page" id="problems">
+
+  <div class="panel-head">
+    <div>
+      <div class="eyebrow">Problem Center</div>
+      <h2 style="font-size:23px;margin-top:6px">Numbers become useful when they expose a problem.</h2>
+      <p class="muted">Finora converts financial data into actionable pressure points.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-3" id="problemGrid"></div>
+
+</section>
+
+
+<!-- ================= RECEIVABLES ================= -->
+
+<section class="page" id="receivables">
+
+  <div class="panel-head">
+    <div>
+      <div class="eyebrow">Receivables</div>
+      <h2 style="font-size:23px;margin-top:6px">Recover the cash that is already yours.</h2>
+      <p class="muted">Turn outstanding invoices into a recovery workflow.</p>
+    </div>
+    <button class="primary-btn" onclick="openInvoiceModal()">+ Invoice</button>
+  </div>
+
+  <div class="grid grid-4" id="receivableMetrics"></div>
+
+  <div class="panel" style="margin-top:14px">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Invoice</th>
+            <th>Amount</th>
+            <th>Due</th>
+            <th>Age</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="invoiceTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ================= EXPENSES ================= -->
+
+<section class="page" id="expenses">
+
+  <div class="panel-head">
+    <div>
+      <div class="eyebrow">Expense Intelligence</div>
+      <h2 style="font-size:23px;margin-top:6px">Understand the recurring drag on your cash.</h2>
+      <p class="muted">Finora flags possible leaks. It does not blindly tell you what to cancel.</p>
+    </div>
+    <button class="primary-btn" onclick="openExpenseModal()">+ Expense</button>
+  </div>
+
+  <div class="grid grid-4" id="expenseMetrics"></div>
+
+  <div class="panel" style="margin-top:14px">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Expense</th>
+            <th>Category</th>
+            <th>Monthly</th>
+            <th>Annual</th>
+            <th>% Income</th>
+            <th>Pattern</th>
+          </tr>
+        </thead>
+        <tbody id="expenseTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ================= EMERGENCY ================= -->
+
+<section class="page" id="emergency">
+
+  <div class="panel-head">
+    <div>
+      <div class="eyebrow">Emergency Fund</div>
+      <h2 style="font-size:23px;margin-top:6px">How long can your essentials survive without income?</h2>
+      <p class="muted">Runway is a resilience metric, not a wealth metric.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-4" id="emergencyMetrics"></div>
+
+  <div class="grid grid-2" style="margin-top:14px">
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Reserve assumptions</h2>
+      </div>
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Current reserve</label>
+          <input id="efCurrent" type="number">
+        </div>
+        <div class="field">
+          <label>Essential monthly expenses</label>
+          <input id="efEssential" type="number">
+        </div>
+        <div class="field">
+          <label>Target runway (months)</label>
+          <input id="efTarget" type="number">
+        </div>
+        <div class="field">
+          <label>Months to build</label>
+          <input id="efMonths" type="number">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="primary-btn" onclick="saveEmergency()">Update</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="eyebrow">Reserve coverage</div>
+      <div class="big-number green" id="efRunway">0 mo</div>
+      <p class="muted" style="font-size:11px;line-height:1.6">
+        Runway = current reserve ÷ essential monthly expenses.
+      </p>
+      <div class="progress" style="margin-top:20px"><span id="efProgress"></span></div>
+      <div style="display:flex;justify-content:space-between;margin-top:7px;font-size:10px">
+        <span class="muted">Current</span>
+        <span id="efTargetText"></span>
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ================= DEBT ================= -->
+
+<section class="page" id="debt">
+
+  <div class="panel-head">
+    <div>
+      <div class="eyebrow">Debt Pressure</div>
+      <h2 style="font-size:23px;margin-top:6px">See what debt is consuming from your monthly system.</h2>
+      <p class="muted">Payoff and interest figures are estimates based on your assumptions.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-4" id="debtMetrics"></div>
+
+  <div class="panel" style="margin-top:14px">
+    <div class="form-grid">
+      <div class="field">
+        <label>Total debt</label>
+        <input id="debtTotal" type="number">
+      </div>
+      <div class="field">
+        <label>Monthly payment</label>
+        <input id="debtPayment" type="number">
+      </div>
+      <div class="field">
+        <label>Annual interest assumption (%)</label>
+        <input id="debtRate" type="number" step=".1">
+      </div>
+      <div class="field">
+        <label>Monthly income</label>
+        <input id="debtIncome" type="number">
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="primary-btn" onclick="saveDebt()">Update debt model</button>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ================= DECISIONS ================= -->
+
+<section class="page" id="decisions">
+
+  <div class="panel-head">
+    <div>
+      <div class="eyebrow">Decision Engine</div>
+      <h2 style="font-size:23px;margin-top:6px">Before spending, see the second-order effects.</h2>
+      <p class="muted">Finora provides context. The decision remains yours.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-2">
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Purchase scenario</h2>
+          <p>Model a large purchase against your current financial system.</p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Purchase</label>
+          <input id="decisionName" value="Laptop">
+        </div>
+        <div class="field">
+          <label>Purchase price</label>
+          <input id="decisionPrice" type="number" value="80000">
+        </div>
+        <div class="field">
+          <label>Current cash</label>
+          <input id="decisionCash" type="number" value="110000">
+        </div>
+        <div class="field">
+          <label>Essential monthly expenses</label>
+          <input id="decisionEssential" type="number" value="35000">
+        </div>
+        <div class="field">
+          <label>Monthly goal contribution</label>
+          <input id="decisionGoal" type="number" value="10000">
+        </div>
+        <div class="field">
+          <label>Monthly cash-flow impact</label>
+          <input id="decisionMonthly" type="number" value="0">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="primary-btn" onclick="runDecision()">Analyze purchase</button>
+      </div>
+    </div>
+
+    <div class="panel" id="decisionResult">
+      <div class="eyebrow">Scenario output</div>
+      <h2 style="margin:6px 0 20px">Enter a purchase to model the impact.</h2>
+      <p class="muted" style="font-size:11px;line-height:1.7">
+        The engine will show cash remaining, reserve runway, goal impact and
+        opportunity cost assumptions without telling you what decision to make.
+      </p>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ================= PROFIT ================= -->
+
+<section class="page" id="profit">
+
+  <div class="panel-head">
+    <div>
+      <div class="eyebrow">Real Profit</div>
+      <h2 style="font-size:23px;margin-top:6px">Revenue is not the same thing as money made.</h2>
+      <p class="muted">Separate accounting profit from the cash reality of operating a business.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-3">
+
+    <div class="panel metric-card">
+      <div class="eyebrow">Revenue</div>
+      <div class="big-number" id="profitRevenue">₹0</div>
+      <div class="metric-bottom"><span>Top-line sales</span></div>
+    </div>
+
+    <div class="panel metric-card">
+      <div class="eyebrow">Accounting Profit</div>
+      <div class="big-number green" id="profitAccounting">₹0</div>
+      <div class="metric-bottom"><span>After listed costs</span></div>
+    </div>
+
+    <div class="panel metric-card">
+      <div class="eyebrow">Margin</div>
+      <div class="big-number blue" id="profitMargin">0%</div>
+      <div class="metric-bottom"><span>Profit / revenue</span></div>
+    </div>
+
+  </div>
+
+  <div class="panel" style="margin-top:14px">
+    <div class="form-grid three">
+      <div class="field"><label>Revenue</label><input id="pRevenue" type="number" value="500000"></div>
+      <div class="field"><label>COGS / product cost</label><input id="pCogs" type="number" value="300000"></div>
+      <div class="field"><label>Shipping</label><input id="pShipping" type="number" value="35000"></div>
+      <div class="field"><label>Returns</label><input id="pReturns" type="number" value="15000"></div>
+      <div class="field"><label>Marketing</label><input id="pMarketing" type="number" value="30000"></div>
+      <div class="field"><label>Overhead</label><input id="pOverhead" type="number" value="15000"></div>
+    </div>
+
+    <div class="form-actions">
+      <button class="primary-btn" onclick="calculateProfit()">Calculate real profit</button>
+    </div>
+  </div>
+
+  <div class="grid grid-2" style="margin-top:14px">
+
+    <div class="panel">
+      <div class="eyebrow">Cost stack</div>
+      <div id="profitStack"></div>
+    </div>
+
+    <div class="panel">
+      <div class="eyebrow">Cash Reality</div>
+      <h2 style="margin:8px 0">Why profit can still feel different from cash.</h2>
+      <p class="muted" style="font-size:11px;line-height:1.8">
+        Revenue may be earned before cash is collected. Inventory may absorb cash.
+        Receivables can make accounting profit look healthy while the bank balance remains tight.
+      </p>
+      <button class="ghost-btn" onclick="go('receivables')">Inspect money stuck →</button>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ================= CALCULATORS ================= -->
+
+<section class="page" id="calculators">
+
+  <div class="panel-head">
+    <div>
+      <div class="eyebrow">Calculators</div>
+      <h2 style="font-size:23px;margin-top:6px">Tools for answering specific money questions.</h2>
+      <p class="muted">Calculators support the system; they are not the system.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-3">
+
+    <div class="panel">
+      <div class="panel-head">
+        <div><h2>Compound Growth</h2><p>Estimate future value.</p></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Principal</label><input id="ciP" type="number" value="100000"></div>
+        <div class="field"><label>Annual rate %</label><input id="ciR" type="number" value="10"></div>
+        <div class="field"><label>Years</label><input id="ciY" type="number" value="5"></div>
+        <div class="field"><label>Monthly addition</label><input id="ciM" type="number" value="5000"></div>
+      </div>
+      <button class="primary-btn" style="margin-top:12px" onclick="compoundCalc()">Calculate</button>
+      <div id="ciResult" style="margin-top:15px"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div><h2>Inflation</h2><p>Understand purchasing power.</p></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Current amount</label><input id="infP" type="number" value="100000"></div>
+        <div class="field"><label>Inflation %</label><input id="infR" type="number" value="6"></div>
+        <div class="field"><label>Years</label><input id="infY" type="number" value="10"></div>
+      </div>
+      <button class="primary-btn" style="margin-top:12px" onclick="inflationCalc()">Calculate</button>
+      <div id="infResult" style="margin-top:15px"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div><h2>Budget Split</h2><p>See your allocation.</p></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Income</label><input id="budIncome" type="number" value="60000"></div>
+        <div class="field"><label>Needs %</label><input id="budNeeds" type="number" value="50"></div>
+        <div class="field"><label>Goals %</label><input id="budGoals" type="number" value="20"></div>
+        <div class="field"><label>Flexible %</label><input id="budFlex" type="number" value="30"></div>
+      </div>
+      <button class="primary-btn" style="margin-top:12px" onclick="budgetCalc()">Calculate</button>
+      <div id="budResult" style="margin-top:15px"></div>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ================= GUIDE ================= -->
+
+<section class="page" id="guide">
+
+  <div class="panel-head">
+    <div>
+      <div class="eyebrow">Finora Guide</div>
+      <h2 style="font-size:23px;margin-top:6px">Ask your financial system questions.</h2>
+      <p class="muted">Local rule-based guide. No cloud AI is being impersonated.</p>
+    </div>
+    <span class="badge">Local / Rule-based</span>
+  </div>
+
+  <div class="panel guide-box">
+
+    <div class="chat" id="guideChat">
+      <div class="msg ai">
+        I can analyze the financial data stored in this browser. Try asking:
+        “What is my biggest financial problem?”
+      </div>
+    </div>
+
+    <div class="guide-input">
+      <input id="guideInput" placeholder="Ask Finora about your money..." onkeydown="if(event.key==='Enter')askGuide()">
+      <button class="primary-btn" onclick="askGuide()">Ask</button>
+    </div>
+
+  </div>
+
+</section>
+
+</div>
+</main>
+</div>
+
+<!-- MOBILE NAV -->
+
+<nav class="mobile-nav">
+  <button class="active" data-mobile="dashboard">⌂<br>Home</button>
+  <button data-mobile="money">◌<br>Money</button>
+  <button data-mobile="goals">◎<br>Goals</button>
+  <button data-mobile="problems">!<br>Problems</button>
+  <button data-mobile="guide">?<br>Guide</button>
+</nav>
+
+<!-- MODAL -->
+
+<div class="modal" id="modal">
+  <div class="modal-card" id="modalCard"></div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+
+<script>
+/* =========================================================
+   FINORA CORE
+   Local-first financial operating system
+========================================================= */
+
+const KEY = "finora_v77_data";
+
+const defaultData = {
+  assets:{
+    cash:100000,
+    bank:100000,
+    investments:80000,
+    receivables:74000,
+    other:185000
+  },
+
+  liabilities:{
+    loans:50000,
+    debt:20000,
+    other:0
+  },
+
+  cashflow:{
+    cash:100000,
+    inflow:60000,
+    fixed:28000,
+    variable:12000,
+    debt:5000,
+    oneTime:25000
+  },
+
+  goals:[
+    {
+      id:1,
+      name:"Wealth Builder",
+      target:1000000,
+      current:180000,
+      years:5,
+      monthly:10000,
+      returnRate:10,
+      inflation:5,
+      category:"Wealth",
+      priority:"High"
+    },
+    {
+      id:2,
+      name:"Business Capital",
+      target:500000,
+      current:80000,
+      years:3,
+      monthly:8000,
+      returnRate:9,
+      inflation:5,
+      category:"Business",
+      priority:"Medium"
+    }
+  ],
+
+  invoices:[
+    {
+      id:1,
+      customer:"ABC Traders",
+      invoice:"#1042",
+      amount:32000,
+      due:"2026-09-20",
+      status:"Overdue"
+    },
+    {
+      id:2,
+      customer:"Riya Enterprises",
+      invoice:"#1043",
+      amount:42000,
+      due:"2026-09-29",
+      status:"Due Soon"
+    },
+    {
+      id:3,
+      customer:"Karan Store",
+      invoice:"#1044",
+      amount:28000,
+      due:"2026-10-08",
+      status:"Open"
+    }
+  ],
+
+  expenses:[
+    {id:1,name:"Software subscriptions",category:"Software",monthly:2500},
+    {id:2,name:"Internet",category:"Utilities",monthly:1200},
+    {id:3,name:"Streaming",category:"Lifestyle",monthly:899},
+    {id:4,name:"Cloud storage",category:"Software",monthly:600}
+  ],
+
+  emergency:{
+    current:110000,
+    essential:35000,
+    target:6,
+    months:12
+  },
+
+  debt:{
+    total:70000,
+    payment:5000,
+    rate:10,
+    income:60000
+  }
+};
+
+let data = loadData();
+
+function loadData(){
+  try{
+    const saved=localStorage.getItem(KEY);
+    if(!saved)return structuredClone(defaultData);
+    return deepMerge(structuredClone(defaultData),JSON.parse(saved));
+  }catch(e){
+    return structuredClone(defaultData);
+  }
+}
+
+function deepMerge(base, saved){
+  for(const key in saved){
+    if(
+      saved[key] &&
+      typeof saved[key]==="object" &&
+      !Array.isArray(saved[key]) &&
+      typeof base[key]==="object"
+    ){
+      deepMerge(base[key],saved[key]);
+    }else{
+      base[key]=saved[key];
+    }
+  }
+  return base;
+}
+
+function save(){
+  localStorage.setItem(KEY,JSON.stringify(data));
+}
+
+function money(n){
+  n=Number(n)||0;
+  return "₹"+Math.round(n).toLocaleString("en-IN");
+}
+
+function pct(n){
+  return `${Number(n||0).toFixed(1)}%`;
+}
+
+function monthsText(n){
+  return `${Number(n||0).toFixed(1)} mo`;
+}
+
+function escapeHTML(str){
+  return String(str)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+const pageInfo={
+  dashboard:["Command Center","Your financial cockpit"],
+  money:["Money Map","Understand your balance sheet"],
+  cashflow:["Cash Flow","See the future cash position"],
+  goals:["Goals","Turn goals into funding systems"],
+  investments:["Investments","Growth with purpose"],
+  problems:["Problem Center","Turn numbers into action"],
+  receivables:["Receivables","Recover money already earned"],
+  expenses:["Expenses","Understand recurring cash drag"],
+  emergency:["Emergency Fund","Build financial resilience"],
+  debt:["Debt Pressure","Understand obligation pressure"],
+  decisions:["Decision Engine","Model before committing cash"],
+  profit:["Real Profit","Revenue is not profit"],
+  calculators:["Calculators","Specific financial questions"],
+  guide:["Finora Guide","Local financial intelligence"]
+};
+
+function go(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  const target=document.getElementById(id);
+  if(target)target.classList.add("active");
+
+  document.querySelectorAll(".nav button[data-page]").forEach(b=>{
+    b.classList.toggle("active",b.dataset.page===id);
+  });
+
+  document.querySelectorAll(".mobile-nav button").forEach(b=>{
+    b.classList.toggle("active",b.dataset.mobile===id);
+  });
+
+  if(pageInfo[id]){
+    document.getElementById("pageTitle").textContent=pageInfo[id][0];
+    document.getElementById("pageSubtitle").textContent=pageInfo[id][1];
+  }
+
+  renderPage(id);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+document.querySelectorAll(".nav button[data-page]").forEach(btn=>{
+  btn.addEventListener("click",()=>go(btn.dataset.page));
+});
+
+document.querySelectorAll(".mobile-nav button").forEach(btn=>{
+  btn.addEventListener("click",()=>go(btn.dataset.mobile));
+});
+
+function renderPage(id){
+  const renderers={
+    dashboard:renderDashboard,
+    money:renderMoney,
+    cashflow:renderCashflow,
+    goals:renderGoals,
+    investments:renderInvestments,
+    problems:renderProblems,
+    receivables:renderReceivables,
+    expenses:renderExpenses,
+    emergency:renderEmergency,
+    debt:renderDebt,
+    profit:calculateProfit
+  };
+
+  if(renderers[id])renderers[id]();
+}
+
+function toast(message){
+  const box=document.getElementById("toasts");
+  const t=document.createElement("div");
+  t.className="toast";
+  t.textContent=message;
+  box.appendChild(t);
+  setTimeout(()=>t.remove(),2600);
+}
+
+/* =========================================================
+   CORE CALCULATIONS
+========================================================= */
+
+function totals(){
+  const assets=Object.values(data.assets).reduce((a,b)=>a+Number(b||0),0);
+  const liabilities=Object.values(data.liabilities).reduce((a,b)=>a+Number(b||0),0);
+  return {assets,liabilities,netWorth:assets-liabilities};
+}
+
+function monthlySurplus(){
+  return data.cashflow.inflow -
+    data.cashflow.fixed -
+    data.cashflow.variable -
+    data.cashflow.debt;
+}
+
+function emergencyRunway(){
+  return data.emergency.current / Math.max(1,data.emergency.essential);
+}
+
+function receivableTotals(){
+  const outstanding=data.invoices
+    .filter(i=>i.status!=="Paid")
+    .reduce((a,b)=>a+Number(b.amount||0),0);
+
+  const overdue=data.invoices
+    .filter(i=>i.status==="Overdue")
+    .reduce((a,b)=>a+Number(b.amount||0),0);
+
+  const soon=data.invoices
+    .filter(i=>i.status==="Due Soon")
+    .reduce((a,b)=>a+Number(b.amount||0),0);
+
+  return {outstanding,overdue,soon};
+}
+
+function goalProjection(g,monthlyOverride=null,yearsOverride=null,returnOverride=null){
+  const years=yearsOverride===null?Number(g.years):Number(yearsOverride);
+  const monthly=monthlyOverride===null?Number(g.monthly):Number(monthlyOverride);
+  const annualReturn=returnOverride===null?Number(g.returnRate):Number(returnOverride);
+
+  const months=Math.max(1,years*12);
+  const r=annualReturn/100/12;
+
+  const currentFV=
+    Number(g.current)*Math.pow(1+r,months);
+
+  const contributionFV=
+    r===0
+      ? monthly*months
+      : monthly*((Math.pow(1+r,months)-1)/r);
+
+  const projected=currentFV+contributionFV;
+
+  const inflationAdjusted=
+    Number(g.target)*Math.pow(1+Number(g.inflation)/100,years);
+
+  const required=requiredMonthly(g,years,annualReturn);
+
+  return {
+    months,
+    currentFV,
+    contributionFV,
+    projected,
+    inflationAdjusted,
+    required,
+    gap:inflationAdjusted-projected,
+    progress:Number(g.current)/Math.max(1,Number(g.target))*100
+  };
+}
+
+function requiredMonthly(g,years,returnRate){
+  const months=Math.max(1,Number(years)*12);
+  const r=Number(returnRate)/100/12;
+
+  const target=Number(g.target)*
+    Math.pow(1+Number(g.inflation)/100,Number(years));
+
+  const currentFV=Number(g.current)*Math.pow(1+r,months);
+
+  const needed=Math.max(0,target-currentFV);
+
+  if(r===0)return needed/months;
+
+  return needed*r/(Math.pow(1+r,months)-1);
+}
+
+function forecastCash(){
+  const rows=[];
+  let cash=Number(data.cashflow.cash);
+
+  const now=new Date();
+
+  for(let i=0;i<6;i++){
+    const d=new Date(now.getFullYear(),now.getMonth()+i+1,1);
+    const oneTime=i===0?Number(data.cashflow.oneTime):0;
+
+    const out=
+      Number(data.cashflow.fixed)+
+      Number(data.cashflow.variable)+
+      Number(data.cashflow.debt)+
+      oneTime;
+
+    const net=Number(data.cashflow.inflow)-out;
+
+    const opening=cash;
+    cash+=net;
+
+    rows.push({
+      month:d.toLocaleString("en-IN",{month:"short"}),
+      opening,
+      inflow:Number(data.cashflow.inflow),
+      outflow:out,
+      net,
+      ending:cash
+    });
+  }
+
+  return rows;
+}
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+function renderDashboard(){
+
+  const t=totals();
+  const r=receivableTotals();
+  const surplus=monthlySurplus();
+  const runway=emergencyRunway();
+
+  let health=100;
+
+  if(runway<6)health-=12;
+  if(r.overdue>0)health-=8;
+  if(surplus<0)health-=25;
+  if(t.netWorth<0)health-=15;
+  if(data.debt.total>data.debt.income*3)health-=8;
+
+  health=Math.max(0,Math.min(100,health));
+
+  document.getElementById("healthScore").textContent=Math.round(health);
+
+  const metrics=[
+    ["Net Worth",money(t.netWorth),"Balance sheet","green"],
+    ["Monthly Surplus",money(surplus),"After recurring outflows",surplus>=0?"green":"red"],
+    ["Cash Runway",monthsText(runway),"Essential expenses","blue"],
+    ["Money Stuck",money(r.outstanding),`${money(r.overdue)} overdue`,"yellow"],
+    ["Emergency Fund",money(data.emergency.current),`${monthsText(runway)} runway`,"green"],
+    ["Goal Progress",goalAverage()+"%","Current funded progress","purple"],
+    ["Investment Progress",money(totalCurrentGoals()),"Goal-linked capital","blue"],
+    ["Debt Pressure",pct(data.debt.payment/data.debt.income*100),"Payment / income","red"]
+  ];
+
+  document.getElementById("dashboardMetrics").innerHTML=metrics.map(m=>`
+    <div class="panel metric-card">
+      <div class="metric-top">
+        <div class="eyebrow">${m[0]}</div>
+        <div class="metric-icon">${m[3]==="green"?"↗":m[3]==="red"?"↘":"◈"}</div>
+      </div>
+      <div class="big-number ${m[3]}">${m[1]}</div>
+      <div class="metric-bottom"><span>${m[2]}</span></div>
+    </div>
+  `).join("");
+
+  const attention=[];
+
+  if(r.overdue>0){
+    attention.push({
+      type:"red",
+      title:`${money(r.overdue)} overdue`,
+      text:"Cash is tied up in invoices that have passed their due date.",
+      action:"Recover cash",
+      page:"receivables"
+    });
+  }
+
+  if(runway<Number(data.emergency.target)){
+    attention.push({
+      type:"yellow",
+      title:"Emergency reserve below target",
+      text:`Current coverage is ${monthsText(runway)} against a ${data.emergency.target}-month target.`,
+      action:"Build reserve",
+      page:"emergency"
+    });
+  }
+
+  const underfunded=data.goals.some(g=>{
+    const p=goalProjection(g);
+    return g.monthly<p.required;
+  });
+
+  if(underfunded){
+    attention.push({
+      type:"blue",
+      title:"At least one goal is underfunded",
+      text:"Your current contribution may not reach the inflation-adjusted target under the assumptions.",
+      action:"Review goals",
+      page:"goals"
+    });
+  }
+
+  const expenseMonthly=data.expenses.reduce((a,b)=>a+Number(b.monthly||0),0);
+  if(expenseMonthly>data.cashflow.inflow*.1){
+    attention.push({
+      type:"yellow",
+      title:"Recurring expenses deserve review",
+      text:`${money(expenseMonthly)} leaves every month through recurring expenses.`,
+      action:"Inspect expenses",
+      page:"expenses"
+    });
+  }
+
+  if(data.debt.payment/data.debt.income>.15){
+    attention.push({
+      type:"red",
+      title:"Debt payment pressure",
+      text:`Debt payments consume ${pct(data.debt.payment/data.debt.income*100)} of income.`,
+      action:"Inspect debt",
+      page:"debt"
+    });
+  }
+
+  if(!attention.length){
+    attention.push({
+      type:"green",
+      title:"No major pressure point detected",
+      text:"Your current model does not trigger Finora's primary alerts.",
+      action:"Explore",
+      page:"goals"
+    });
+  }
+
+  document.getElementById("attentionList").innerHTML=attention.slice(0,4).map(a=>`
+    <div class="attention-item">
+      <span class="dot ${a.type}"></span>
+      <div>
+        <strong>${a.title}</strong>
+        <p>${a.text}</p>
+      </div>
+      <button onclick="go('${a.page}')">${a.action}</button>
+    </div>
+  `).join("");
+
+  const rows=forecastCash();
+  const max=Math.max(...rows.map(x=>Math.abs(x.ending)),1);
+
+  document.getElementById("dashboardChart").innerHTML=rows.map(x=>`
+    <div class="bar-wrap">
+      <div class="bar ${x.ending<0?"negative":""}" style="height:${Math.max(3,Math.min(100,Math.abs(x.ending)/max*100))}%"></div>
+      <div class="bar-label">${x.month}</div>
+    </div>
+  `).join("");
+
+  document.getElementById("dashboardGoals").innerHTML=data.goals.map(g=>{
+    const p=goalProjection(g);
+    return `
+      <div style="margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:7px">
+          <strong>${escapeHTML(g.name)}</strong>
+          <span class="muted">${Math.min(100,p.progress).toFixed(0)}%</span>
+        </div>
+        <div class="progress"><span style="width:${Math.min(100,p.progress)}%"></span></div>
+        <div style="display:flex;justify-content:space-between;margin-top:7px;font-size:9px;color:#708096">
+          <span>${money(g.current)} funded</span>
+          <span>${money(g.target)} target</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function totalCurrentGoals(){
+  return data.goals.reduce((a,b)=>a+Number(b.current||0),0);
+}
+
+function goalAverage(){
+  if(!data.goals.length)return 0;
+  return Math.round(
+    data.goals.reduce((a,g)=>a+Math.min(100,Number(g.current)/Math.max(1,g.target)*100),0)/
+    data.goals.length
+  );
+}
+
+/* =========================================================
+   MONEY MAP
+========================================================= */
+
+function renderMoney(){
+
+  const assetLabels={
+    cash:"Cash",
+    bank:"Bank",
+    investments:"Investments",
+    receivables:"Receivables",
+    other:"Other assets"
+  };
+
+  const liabilityLabels={
+    loans:"Loans",
+    debt:"Credit / Debt",
+    other:"Other liabilities"
+  };
+
+  document.getElementById("assetInputs").innerHTML=
+    Object.entries(assetLabels).map(([key,label])=>`
+      <div class="field" style="margin-bottom:10px">
+        <label>${label}</label>
+        <input type="number" value="${data.assets[key]}"
+          onchange="updateAsset('${key}',this.value)">
+      </div>
+    `).join("");
+
+  document.getElementById("liabilityInputs").innerHTML=
+    Object.entries(liabilityLabels).map(([key,label])=>`
+      <div class="field" style="margin-bottom:10px">
+        <label>${label}</label>
+        <input type="number" value="${data.liabilities[key]}"
+          onchange="updateLiability('${key}',this.value)">
+      </div>
+    `).join("");
+
+  const t=totals();
+
+  document.getElementById("totalAssets").textContent=money(t.assets);
+  document.getElementById("netWorth").textContent=money(t.netWorth);
+
+  document.getElementById("assetConcentration").innerHTML=
+    Object.entries(assetLabels).map(([key,label])=>{
+      const amount=Number(data.assets[key]);
+      const width=t.assets?amount/t.assets*100:0;
+
+      return `
+        <div class="asset-row">
+          <div class="asset-line">
+            <span>${label}</span>
+            <strong>${money(amount)} · ${pct(width)}</strong>
+          </div>
+          <div class="asset-bar"><span style="width:${width}%"></span></div>
+        </div>
+      `;
+    }).join("");
+}
+
+function updateAsset(key,value){
+  data.assets[key]=Number(value)||0;
+  save();
+  renderMoney();
+  renderDashboard();
+}
+
+function updateLiability(key,value){
+  data.liabilities[key]=Number(value)||0;
+  save();
+  renderMoney();
+  renderDashboard();
+}
+
+/* =========================================================
+   CASH FLOW
+========================================================= */
+
+function renderCashflow(){
+
+  const surplus=monthlySurplus();
+  const rows=forecastCash();
+
+  const tight=rows.filter(r=>r.ending<0).length;
+
+  const metrics=[
+    ["Monthly Inflow",money(data.cashflow.inflow),"Recurring income","green"],
+    ["Monthly Outflow",money(data.cashflow.fixed+data.cashflow.variable+data.cashflow.debt),"Recurring + debt","red"],
+    ["Monthly Surplus",money(surplus),"Before one-time event",surplus>=0?"green":"red"],
+    ["Tight Months",tight,"Projected negative cash","yellow"]
+  ];
+
+  document.getElementById("cashMetrics").innerHTML=metrics.map(m=>`
+    <div class="panel metric-card">
+      <div class="eyebrow">${m[0]}</div>
+      <div class="big-number ${m[3]}">${m[1]}</div>
+      <div class="metric-bottom"><span>${m[2]}</span></div>
+    </div>
+  `).join("");
+
+  document.getElementById("cfCash").value=data.cashflow.cash;
+  document.getElementById("cfInflow").value=data.cashflow.inflow;
+  document.getElementById("cfFixed").value=data.cashflow.fixed;
+  document.getElementById("cfVariable").value=data.cashflow.variable;
+  document.getElementById("cfDebt").value=data.cashflow.debt;
+  document.getElementById("cfOneTime").value=data.cashflow.oneTime;
+
+  const max=Math.max(...rows.map(x=>Math.abs(x.ending)),1);
+
+  document.getElementById("cashChart").innerHTML=rows.map(x=>`
+    <div class="bar-wrap">
+      <div class="bar ${x.ending<0?"negative":""}" style="height:${Math.max(3,Math.min(100,Math.abs(x.ending)/max*100))}%"></div>
+      <div class="bar-label">${x.month}</div>
+    </div>
+  `).join("");
+
+  document.getElementById("cashTable").innerHTML=rows.map(r=>`
+    <tr>
+      <td><strong>${r.month}</strong></td>
+      <td>${money(r.opening)}</td>
+      <td class="green">${money(r.inflow)}</td>
+      <td class="red">${money(r.outflow)}</td>
+      <td class="${r.net>=0?"green":"red"}">${money(r.net)}</td>
+      <td><strong>${money(r.ending)}</strong></td>
+      <td><span class="badge ${r.ending<0?"red":"green"}">${r.ending<0?"Tight":"Positive"}</span></td>
+    </tr>
+  `).join("");
+}
+
+function saveCashFlow(){
+  data.cashflow={
+    cash:Number(document.getElementById("cfCash").value)||0,
+    inflow:Number(document.getElementById("cfInflow").value)||0,
+    fixed:Number(document.getElementById("cfFixed").value)||0,
+    variable:Number(document.getElementById("cfVariable").value)||0,
+    debt:Number(document.getElementById("cfDebt").value)||0,
+    oneTime:Number(document.getElementById("cfOneTime").value)||0
+  };
+
+  save();
+  renderCashflow();
+  renderDashboard();
+  toast("Cash-flow model updated");
+}
+
+/* =========================================================
+   GOALS
+========================================================= */
+
+function renderGoals(){
+
+  let totalTarget=0;
+  let totalCurrent=0;
+  let totalRequired=0;
+  let totalMonthly=0;
+
+  data.goals.forEach(g=>{
+    const p=goalProjection(g);
+    totalTarget+=p.inflationAdjusted;
+    totalCurrent+=Number(g.current);
+    totalRequired+=p.required;
+    totalMonthly+=Number(g.monthly);
+  });
+
+  document.getElementById("goalSummary").innerHTML=[
+    ["Current capital",money(totalCurrent),"Funded today","green"],
+    ["Inflation-adjusted target",money(totalTarget),"Across goals","yellow"],
+    ["Required monthly",money(totalRequired),"Under assumptions","blue"],
+    ["Current monthly",money(totalMonthly),"Planned contribution",totalMonthly>=totalRequired?"green":"red"]
+  ].map(m=>`
+    <div class="panel metric-card">
+      <div class="eyebrow">${m[0]}</div>
+      <div class="big-number ${m[3]}">${m[1]}</div>
+      <div class="metric-bottom"><span>${m[2]}</span></div>
+    </div>
+  `).join("");
+
+  document.getElementById("goalGrid").innerHTML=data.goals.map(g=>goalCard(g)).join("");
+}
+
+function goalCard(g){
+
+  const p=goalProjection(g);
+  const currentMonthly=Number(g.monthly);
+  const increased=currentMonthly+5000;
+
+  const currentPlan=goalProjection(g,currentMonthly);
+  const increasedPlan=goalProjection(g,increased);
+  const noGrowth=goalProjection(g,currentMonthly,g.years,0);
+
+  const status=currentMonthly>=p.required;
+
+  return `
+    <div class="panel goal-card ${g.priority==="High"?"priority":""}">
+
+      <div class="goal-head">
+        <div>
+          <div class="eyebrow">${escapeHTML(g.category)} · ${escapeHTML(g.priority)}</div>
+          <h2 style="margin:6px 0">${escapeHTML(g.name)}</h2>
+        </div>
+        <button class="icon-btn" onclick="deleteGoal(${g.id})">×</button>
+      </div>
+
+      <div class="goal-amount">${money(g.current)} <span class="muted" style="font-size:12px">/ ${money(g.target)}</span></div>
+
+      <div class="progress">
+        <span style="width:${Math.min(100,p.progress)}%"></span>
+      </div>
+
+      <div class="goal-meta">
+        <div>
+          <span>Time</span>
+          <strong>${g.years} years</strong>
+        </div>
+        <div>
+          <span>Monthly</span>
+          <strong>${money(g.monthly)}</strong>
+        </div>
+        <div>
+          <span>Required</span>
+          <strong class="${status?"green":"red"}">${money(p.required)}</strong>
+        </div>
+        <div>
+          <span>Return</span>
+          <strong>${g.returnRate}% assumption</strong>
+        </div>
+        <div>
+          <span>Inflation</span>
+          <strong>${g.inflation}%</strong>
+        </div>
+        <div>
+          <span>Future target</span>
+          <strong>${money(p.inflationAdjusted)}</strong>
+        </div>
+      </div>
+
+      <div class="scenario">
+        <div class="scenario-head">
+          <span>CURRENT PLAN</span>
+          <span class="${currentPlan.gap<=0?"green":"yellow"}">
+            ${currentPlan.gap<=0?"On track":"Gap "+money(currentPlan.gap)}
+          </span>
+        </div>
+        <div class="scenario-value">${money(currentPlan.projected)}</div>
+      </div>
+
+      <div class="scenario">
+        <div class="scenario-head">
+          <span>INCREASE CONTRIBUTION +₹5K</span>
+          <span class="green">Scenario</span>
+        </div>
+        <div class="scenario-value">${money(increasedPlan.projected)}</div>
+        <div class="muted" style="font-size:9px;margin-top:4px">
+          Difference: ${money(increasedPlan.projected-currentPlan.projected)}
+        </div>
+      </div>
+
+      <div class="scenario">
+        <div class="scenario-head">
+          <span>NO INVESTMENT GROWTH</span>
+          <span class="yellow">0% assumption</span>
+        </div>
+        <div class="scenario-value">${money(noGrowth.projected)}</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div style="font-size:10px;color:#8998aa;line-height:1.6">
+        <strong style="color:#dbe4ef">What this means:</strong>
+        ${status
+          ? "Your planned monthly contribution is at or above the estimated requirement under these assumptions."
+          : "Your planned contribution is below the estimated requirement. Increasing time, contribution, or changing assumptions changes the outcome."}
+      </div>
+
+    </div>
+  `;
+}
+
+function openGoalModal(){
+
+  showModal(`
+    <div class="modal-head">
+      <div>
+        <div class="eyebrow">Goals 2.0</div>
+        <h2 style="margin:6px 0">Create a funded goal</h2>
+      </div>
+      <button class="icon-btn" onclick="closeModal()">×</button>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label>Goal name</label>
+        <input id="gName" placeholder="e.g. Education">
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <select id="gCategory">
+          <option>Wealth</option>
+          <option>Business</option>
+          <option>Education</option>
+          <option>Travel</option>
+          <option>Purchase</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Target amount</label>
+        <input id="gTarget" type="number" value="500000">
+      </div>
+      <div class="field">
+        <label>Current amount</label>
+        <input id="gCurrent" type="number" value="0">
+      </div>
+      <div class="field">
+        <label>Years</label>
+        <input id="gYears" type="number" value="3" step=".5">
+      </div>
+      <div class="field">
+        <label>Monthly contribution</label>
+        <input id="gMonthly" type="number" value="5000">
+      </div>
+      <div class="field">
+        <label>Expected return assumption %</label>
+        <input id="gReturn" type="number" value="10" step=".1">
+      </div>
+      <div class="field">
+        <label>Inflation assumption %</label>
+        <input id="gInflation" type="number" value="5" step=".1">
+      </div>
+      <div class="field">
+        <label>Priority</label>
+        <select id="gPriority">
+          <option>High</option>
+          <option>Medium</option>
+          <option>Low</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="ghost-btn" onclick="closeModal()">Cancel</button>
+      <button class="primary-btn" onclick="createGoal()">Create goal</button>
+    </div>
+  `);
+}
+
+function createGoal(){
+
+  const goal={
+    id:Date.now(),
+    name:document.getElementById("gName").value.trim()||"New Goal",
+    target:Number(document.getElementById("gTarget").value)||0,
+    current:Number(document.getElementById("gCurrent").value)||0,
+    years:Number(document.getElementById("gYears").value)||1,
+    monthly:Number(document.getElementById("gMonthly").value)||0,
+    returnRate:Number(document.getElementById("gReturn").value)||0,
+    inflation:Number(document.getElementById("gInflation").value)||0,
+    category:document.getElementById("gCategory").value,
+    priority:document.getElementById("gPriority").value
+  };
+
+  data.goals.push(goal);
+  save();
+  closeModal();
+  renderGoals();
+  renderDashboard();
+  toast("Goal created");
+}
+
+function deleteGoal(id){
+  if(!confirm("Delete this goal?"))return;
+  data.goals=data.goals.filter(g=>g.id!==id);
+  save();
+  renderGoals();
+  renderDashboard();
+  toast("Goal removed");
+}
+
+/* =========================================================
+   INVESTMENTS
+========================================================= */
+
+function renderInvestments(){
+
+  const current=totalCurrentGoals();
+
+  let projected=0;
+
+  data.goals.forEach(g=>{
+    projected+=goalProjection(g).projected;
+  });
+
+  const totalContributions=data.goals.reduce((a,g)=>{
+    return a+Number(g.monthly)*Number(g.years)*12;
+  },0);
+
+  const growth=Math.max(0,projected-current-totalContributions);
+
+  document.getElementById("investedCapital").textContent=money(current);
+  document.getElementById("projectedCapital").textContent=money(projected);
+  document.getElementById("growthCapital").textContent=money(growth);
+
+  document.getElementById("investmentGoals").innerHTML=data.goals.map(g=>{
+    const p=goalProjection(g);
+
+    return `
+      <div style="padding:14px 0;border-bottom:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between">
+          <strong>${escapeHTML(g.name)}</strong>
+          <span class="muted">${g.returnRate}% assumed return</span>
+        </div>
+
+        <div class="progress" style="margin:10px 0">
+          <span style="width:${Math.min(100,p.progress)}%"></span>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;font-size:10px">
+          <span>${money(g.current)} current</span>
+          <span>${money(p.projected)} projected</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+/* =========================================================
+   PROBLEMS
+========================================================= */
+
+function renderProblems(){
+
+  const r=receivableTotals();
+  const runway=emergencyRunway();
+  const expenseMonthly=data.expenses.reduce((a,b)=>a+Number(b.monthly),0);
+  const debtRatio=data.debt.payment/data.debt.income;
+
+  const problems=[];
+
+  if(r.overdue>0){
+    problems.push({
+      cls:"red-border",
+      eyebrow:"Cash recovery",
+      title:`${money(r.overdue)} is overdue`,
+      text:"This is not merely an accounting number. It represents cash that cannot currently support your operations or goals.",
+      action:"Next action: follow up on overdue invoices and track collection status.",
+      page:"receivables"
+    });
+  }
+
+  if(runway<data.emergency.target){
+    problems.push({
+      cls:"problem-card",
+      eyebrow:"Resilience",
+      title:`Reserve covers ${monthsText(runway)}`,
+      text:`Your modeled target is ${data.emergency.target} months. The gap represents resilience you have not yet funded.`,
+      action:`Next action: calculate the monthly contribution required to close the reserve gap.`,
+      page:"emergency"
+    });
+  }
+
+  data.goals.forEach(g=>{
+    const p=goalProjection(g);
+    if(g.monthly<p.required){
+      problems.push({
+        cls:"blue-border",
+        eyebrow:"Goal funding",
+        title:`${escapeHTML(g.name)} has a funding gap`,
+        text:`Current contribution is ${money(g.monthly)}, while the modeled requirement is ${money(p.required)} per month under the assumptions.`,
+        action:"Next action: test higher contribution or longer time horizon.",
+        page:"goals"
+      });
+    }
+  });
+
+  if(expenseMonthly>data.cashflow.inflow*.1){
+    problems.push({
+      cls:"problem-card",
+      eyebrow:"Recurring drag",
+      title:`${money(expenseMonthly)} monthly recurring spend`,
+      text:"Recurring costs can quietly compound into a meaningful annual cash commitment.",
+      action:"Next action: inspect the list and decide which costs still create enough value.",
+      page:"expenses"
+    });
+  }
+
+  if(debtRatio>.15){
+    problems.push({
+      cls:"red-border",
+      eyebrow:"Debt pressure",
+      title:`Debt consumes ${pct(debtRatio*100)} of income`,
+      text:"Debt payments reduce the amount of monthly cash available for resilience, goals and flexible decisions.",
+      action:"Next action: model payoff timeline and interest assumptions.",
+      page:"debt"
+    });
+  }
+
+  if(monthlySurplus()<0){
+    problems.push({
+      cls:"red-border",
+      eyebrow:"Cash flow",
+      title:"Monthly cash flow is negative",
+      text:"The current recurring model spends more than it brings in before considering unusual events.",
+      action:"Next action: inspect inflow, fixed costs, variable costs and debt separately.",
+      page:"cashflow"
+    });
+  }
+
+  if(!problems.length){
+    problems.push({
+      cls:"green-border",
+      eyebrow:"System status",
+      title:"No major trigger",
+      text:"Finora's current rule engine has not identified a primary pressure point from the available data.",
+      action:"Next action: use Decision Engine to stress-test a future purchase.",
+      page:"decisions"
+    });
+  }
+
+  document.getElementById("problemGrid").innerHTML=problems.map(p=>`
+    <div class="panel problem-card ${p.cls}">
+      <div class="eyebrow">${p.eyebrow}</div>
+      <h3>${p.title}</h3>
+      <p>${p.text}</p>
+      <div class="action-box">${p.action}</div>
+      <button class="ghost-btn" style="margin-top:12px" onclick="go('${p.page}')">Open module →</button>
+    </div>
+  `).join("");
+}
+
+/* =========================================================
+   RECEIVABLES
+========================================================= */
+
+function invoiceAge(due){
+  const today=new Date();
+  const d=new Date(due+"T00:00:00");
+  return Math.floor((today-d)/(1000*60*60*24));
+}
+
+function renderReceivables(){
+
+  const r=receivableTotals();
+
+  document.getElementById("receivableMetrics").innerHTML=[
+    ["Outstanding",money(r.outstanding),"Uncollected","yellow"],
+    ["Overdue",money(r.overdue),"Past due","red"],
+    ["Due Soon",money(r.soon),"Requires attention","blue"],
+    ["Invoices",data.invoices.length,"Tracked locally","green"]
+  ].map(m=>`
+    <div class="panel metric-card">
+      <div class="eyebrow">${m[0]}</div>
+      <div class="big-number ${m[3]}">${m[1]}</div>
+      <div class="metric-bottom"><span>${m[2]}</span></div>
+    </div>
+  `).join("");
+
+  document.getElementById("invoiceTable").innerHTML=data.invoices.map(i=>{
+
+    const age=invoiceAge(i.due);
+    const status=i.status;
+
+    return `
+      <tr>
+        <td><strong>${escapeHTML(i.customer)}</strong></td>
+        <td>${escapeHTML(i.invoice)}</td>
+        <td>${money(i.amount)}</td>
+        <td>${i.due}</td>
+        <td>${age>0?age+"d overdue":Math.abs(age)+"d remaining"}</td>
+        <td>
+          <span class="badge ${status==="Overdue"?"red":status==="Due Soon"?"yellow":"green"}">
+            ${status}
+          </span>
+        </td>
+        <td>
+          <button class="ghost-btn" onclick="invoiceAction(${i.id})">Action</button>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function invoiceAction(id){
+
+  const i=data.invoices.find(x=>x.id===id);
+  if(!i)return;
+
+  showModal(`
+    <div class="modal-head">
+      <div>
+        <div class="eyebrow">Cash recovery</div>
+        <h2 style="margin:6px 0">${escapeHTML(i.customer)}</h2>
+      </div>
+      <button class="icon-btn" onclick="closeModal()">×</button>
+    </div>
+
+    <div class="panel" style="padding:14px;background:rgba(255,255,255,.02)">
+      <div class="muted" style="font-size:10px">${i.invoice}</div>
+      <div class="big-number" style="margin:6px 0">${money(i.amount)}</div>
+      <div class="muted" style="font-size:10px">Due ${i.due}</div>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px">
+      <button class="primary-btn" onclick="copyReminder(${i.id})">Copy reminder</button>
+      <button class="ghost-btn" onclick="markInvoice(${i.id},'Paid')">Mark paid</button>
+      <button class="ghost-btn" onclick="markInvoice(${i.id},'Disputed')">Disputed</button>
+      <button class="ghost-btn" onclick="markInvoice(${i.id},'Snoozed')">Snooze</button>
+    </div>
+  `);
+}
+
+function copyReminder(id){
+  const i=data.invoices.find(x=>x.id===id);
+
+  const text=
+`Hi ${i.customer}, just following up regarding invoice ${i.invoice} for ${money(i.amount)}, which was due on ${i.due}. Please let me know the expected payment date. Thank you.`;
+
+  navigator.clipboard?.writeText(text);
+  toast("Reminder copied");
+}
+
+function markInvoice(id,status){
+  const i=data.invoices.find(x=>x.id===id);
+  if(!i)return;
+
+  i.status=status;
+  save();
+  closeModal();
+  renderReceivables();
+  renderDashboard();
+  toast(`Invoice marked ${status}`);
+}
+
+function openInvoiceModal(){
+
+  showModal(`
+    <div class="modal-head">
+      <div>
+        <div class="eyebrow">Receivables</div>
+        <h2 style="margin:6px 0">Add invoice</h2>
+      </div>
+      <button class="icon-btn" onclick="closeModal()">×</button>
+    </div>
+
+    <div class="form-grid">
+      <div class="field"><label>Customer</label><input id="iCustomer"></div>
+      <div class="field"><label>Invoice number</label><input id="iInvoice" placeholder="#1045"></div>
+      <div class="field"><label>Amount</label><input id="iAmount" type="number"></div>
+      <div class="field"><label>Due date</label><input id="iDue" type="date"></div>
+    </div>
+
+    <div class="form-actions">
+      <button class="primary-btn" onclick="createInvoice()">Add invoice</button>
+    </div>
+  `);
+}
+
+function createInvoice(){
+
+  data.invoices.push({
+    id:Date.now(),
+    customer:document.getElementById("iCustomer").value||"Customer",
+    invoice:document.getElementById("iInvoice").value||"#NEW",
+    amount:Number(document.getElementById("iAmount").value)||0,
+    due:document.getElementById("iDue").value||new Date().toISOString().slice(0,10),
+    status:"Open"
+  });
+
+  save();
+  closeModal();
+  renderReceivables();
+  renderDashboard();
+  toast("Invoice added");
+}
+
+/* =========================================================
+   EXPENSES
+========================================================= */
+
+function renderExpenses(){
+
+  const monthly=data.expenses.reduce((a,b)=>a+Number(b.monthly||0),0);
+  const annual=monthly*12;
+  const income=Number(data.cashflow.inflow)||1;
+  const ratio=monthly/income*100;
+
+  const possibleLeaks=data.expenses.filter(e=>e.monthly>income*.03).length;
+
+  document.getElementById("expenseMetrics").innerHTML=[
+    ["Monthly recurring",money(monthly),"Recurring commitment","red"],
+    ["Annual recurring",money(annual),"12-month cost","yellow"],
+    ["% of income",pct(ratio),"Against inflow","blue"],
+    ["Review candidates",possibleLeaks,"Needs context","green"]
+  ].map(m=>`
+    <div class="panel metric-card">
+      <div class="eyebrow">${m[0]}</div>
+      <div class="big-number ${m[3]}">${m[1]}</div>
+      <div class="metric-bottom"><span>${m[2]}</span></div>
+    </div>
+  `).join("");
+
+  document.getElementById("expenseTable").innerHTML=data.expenses.map(e=>{
+    const percent=Number(e.monthly)/income*100;
+    return `
+      <tr>
+        <td><strong>${escapeHTML(e.name)}</strong></td>
+        <td>${escapeHTML(e.category)}</td>
+        <td>${money(e.monthly)}</td>
+        <td>${money(e.monthly*12)}</td>
+        <td>${pct(percent)}</td>
+        <td>
+          <span class="badge ${percent>3?"yellow":"green"}">
+            ${percent>3?"Review context":"Normal"}
+          </span>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function openExpenseModal(){
+
+  showModal(`
+    <div class="modal-head">
+      <div>
+        <div class="eyebrow">Expense Intelligence</div>
+        <h2 style="margin:6px 0">Add recurring expense</h2>
+      </div>
+      <button class="icon-btn" onclick="closeModal()">×</button>
+    </div>
+
+    <div class="form-grid">
+      <div class="field"><label>Expense</label><input id="eName"></div>
+      <div class="field"><label>Category</label><input id="eCategory" placeholder="Software"></div>
+      <div class="field"><label>Monthly cost</label><input id="eMonthly" type="number"></div>
+    </div>
+
+    <div class="form-actions">
+      <button class="primary-btn" onclick="createExpense()">Add expense</button>
+    </div>
+  `);
+}
+
+function createExpense(){
+
+  data.expenses.push({
+    id:Date.now(),
+    name:document.getElementById("eName").value||"Expense",
+    category:document.getElementById("eCategory").value||"Other",
+    monthly:Number(document.getElementById("eMonthly").value)||0
+  });
+
+  save();
+  closeModal();
+  renderExpenses();
+  renderDashboard();
+  toast("Expense added");
+}
+
+/* =========================================================
+   EMERGENCY FUND
+========================================================= */
+
+function renderEmergency(){
+
+  const runway=emergencyRunway();
+  const target=data.emergency.essential*data.emergency.target;
+  const gap=Math.max(0,target-data.emergency.current);
+  const monthlyNeed=gap/Math.max(1,data.emergency.months);
+  const progress=Math.min(100,data.emergency.current/Math.max(1,target)*100);
+
+  document.getElementById("emergencyMetrics").innerHTML=[
+    ["Current reserve",money(data.emergency.current),"Cash reserve","green"],
+    ["Essential expenses",money(data.emergency.essential),"Monthly","blue"],
+    ["Runway",monthsText(runway),"Current coverage","yellow"],
+    ["Reserve gap",money(gap),"To target","red"]
+  ].map(m=>`
+    <div class="panel metric-card">
+      <div class="eyebrow">${m[0]}</div>
+      <div class="big-number ${m[3]}">${m[1]}</div>
+      <div class="metric-bottom"><span>${m[2]}</span></div>
+    </div>
+  `).join("");
+
+  document.getElementById("efCurrent").value=data.emergency.current;
+  document.getElementById("efEssential").value=data.emergency.essential;
+  document.getElementById("efTarget").value=data.emergency.target;
+  document.getElementById("efMonths").value=data.emergency.months;
+
+  document.getElementById("efRunway").textContent=monthsText(runway);
+  document.getElementById("efProgress").style.width=progress+"%";
+  document.getElementById("efTargetText").textContent=
+    `${money(target)} target · ${money(monthlyNeed)}/mo needed`;
+}
+
+function saveEmergency(){
+
+  data.emergency={
+    current:Number(document.getElementById("efCurrent").value)||0,
+    essential:Number(document.getElementById("efEssential").value)||1,
+    target:Number(document.getElementById("efTarget").value)||6,
+    months:Number(document.getElementById("efMonths").value)||12
+  };
+
+  save();
+  renderEmergency();
+  renderDashboard();
+  toast("Emergency fund updated");
+}
+
+/* =========================================================
+   DEBT
+========================================================= */
+
+function renderDebt(){
+
+  const d=data.debt;
+
+  const ratio=d.payment/Math.max(1,d.income)*100;
+  const monthlyRate=d.rate/100/12;
+
+  let months;
+
+  if(monthlyRate===0){
+    months=d.total/Math.max(1,d.payment);
+  }else{
+    const n=-Math.log(1-(d.total*monthlyRate)/Math.max(1,d.payment))/Math.log(1+monthlyRate);
+    months=Number.isFinite(n)?n:Infinity;
+  }
+
+  const totalPaid=Number.isFinite(months)?months*d.payment:Infinity;
+  const interest=Math.max(0,totalPaid-d.total);
+
+  document.getElementById("debtMetrics").innerHTML=[
+    ["Total debt",money(d.total),"Outstanding","red"],
+    ["Monthly payment",money(d.payment),"Recurring obligation","yellow"],
+    ["Payment ratio",pct(ratio),"Income share","blue"],
+    ["Estimated payoff",Number.isFinite(months)?monthsText(months):"Not solvable","Assumption-based","green"]
+  ].map(m=>`
+    <div class="panel metric-card">
+      <div class="eyebrow">${m[0]}</div>
+      <div class="big-number ${m[3]}">${m[1]}</div>
+      <div class="metric-bottom"><span>${m[2]}</span></div>
+    </div>
+  `).join("");
+
+  document.getElementById("debtTotal").value=d.total;
+  document.getElementById("debtPayment").value=d.payment;
+  document.getElementById("debtRate").value=d.rate;
+  document.getElementById("debtIncome").value=d.income;
+
+  document.getElementById("debtMetrics").insertAdjacentHTML("afterend",`
+    <div class="panel" style="grid-column:1/-1;margin-top:0">
+      <div style="display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap">
+        <div>
+          <div class="eyebrow">Estimated interest</div>
+          <div class="big-number yellow">${Number.isFinite(interest)?money(interest):"—"}</div>
+        </div>
+        <div style="max-width:420px">
+          <p class="muted" style="font-size:10px;line-height:1.6;margin:0">
+            This is an amortization estimate under the entered rate and fixed payment.
+            Actual lender calculations can differ because of fees, compounding, payment timing and rate changes.
+          </p>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+function saveDebt(){
+
+  data.debt={
+    total:Number(document.getElementById("debtTotal").value)||0,
+    payment:Number(document.getElementById("debtPayment").value)||0,
+    rate:Number(document.getElementById("debtRate").value)||0,
+    income:Number(document.getElementById("debtIncome").value)||1
+  };
+
+  save();
+  renderDebt();
+  renderDashboard();
+  toast("Debt model updated");
+}
+
+/* =========================================================
+   DECISION ENGINE
+========================================================= */
+
+function runDecision(){
+
+  const name=document.getElementById("decisionName").value||"Purchase";
+  const price=Number(document.getElementById("decisionPrice").value)||0;
+  const cash=Number(document.getElementById("decisionCash").value)||0;
+  const essential=Number(document.getElementById("decisionEssential").value)||1;
+  const goal=Number(document.getElementById("decisionGoal").value)||0;
+  const monthlyImpact=Number(document.getElementById("decisionMonthly").value)||0;
+
+  const remaining=cash-price;
+  const runwayBefore=cash/essential;
+  const runwayAfter=remaining/essential;
+
+  const goalMonths=goal>0?price/goal:Infinity;
+
+  let cashStatus="Positive";
+  if(remaining<0)cashStatus="Purchase exceeds current cash";
+  else if(runwayAfter<3)cashStatus="Lower reserve coverage";
+  else if(runwayAfter<6)cashStatus="Reserve below 6 months";
+
+  document.getElementById("decisionResult").innerHTML=`
+    <div class="eyebrow">Scenario output</div>
+    <h2 style="margin:6px 0 18px">${escapeHTML(name)}</h2>
+
+    <div class="grid grid-2">
+
+      <div class="map-total">
+        <div class="eyebrow">Cash remaining</div>
+        <div class="big-number ${remaining>=0?"green":"red"}">${money(remaining)}</div>
+        <div class="muted" style="font-size:9px">After purchase</div>
+      </div>
+
+      <div class="map-total">
+        <div class="eyebrow">Runway after</div>
+        <div class="big-number ${runwayAfter>=6?"green":"yellow"}">${monthsText(runwayAfter)}</div>
+        <div class="muted" style="font-size:9px">vs ${monthsText(runwayBefore)} before</div>
+      </div>
+
+      <div class="map-total">
+        <div class="eyebrow">Goal opportunity cost</div>
+        <div class="big-number yellow">
+          ${Number.isFinite(goalMonths)?goalMonths.toFixed(1)+" mo":"—"}
+        </div>
+        <div class="muted" style="font-size:9px">
+          Equivalent to monthly goal contribution
+        </div>
+      </div>
+
+      <div class="map-total">
+        <div class="eyebrow">Monthly cash impact</div>
+        <div class="big-number ${monthlyImpact>0?"red":"green"}">
+          ${monthlyImpact?money(monthlyImpact):"₹0"}
+        </div>
+        <div class="muted" style="font-size:9px">Entered assumption</div>
+      </div>
+
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="action-box">
+      <strong>Context:</strong> ${cashStatus}.
+      Finora is showing the trade-offs, not making the decision for you.
+    </div>
+  `;
+
+  toast("Scenario analyzed");
+}
+
+/* =========================================================
+   BUSINESS PROFIT
+========================================================= */
+
+function calculateProfit(){
+
+  const revenue=Number(document.getElementById("pRevenue").value)||0;
+  const costs={
+    "COGS":Number(document.getElementById("pCogs").value)||0,
+    "Shipping":Number(document.getElementById("pShipping").value)||0,
+    "Returns":Number(document.getElementById("pReturns").value)||0,
+    "Marketing":Number(document.getElementById("pMarketing").value)||0,
+    "Overhead":Number(document.getElementById("pOverhead").value)||0
+  };
+
+  const total=Object.values(costs).reduce((a,b)=>a+b,0);
+  const profit=revenue-total;
+  const margin=revenue?profit/revenue*100:0;
+
+  document.getElementById("profitRevenue").textContent=money(revenue);
+  document.getElementById("profitAccounting").textContent=money(profit);
+  document.getElementById("profitMargin").textContent=pct(margin);
+
+  document.getElementById("profitStack").innerHTML=
+    Object.entries(costs).map(([name,value])=>{
+      const width=revenue?value/revenue*100:0;
+      return `
+        <div class="asset-row">
+          <div class="asset-line">
+            <span>${name}</span>
+            <strong>${money(value)} · ${pct(width)}</strong>
+          </div>
+          <div class="asset-bar"><span style="width:${Math.min(100,width)}%"></span></div>
+        </div>
+      `;
+    }).join("");
+}
+
+/* =========================================================
+   CALCULATORS
+========================================================= */
+
+function compoundCalc(){
+
+  const P=Number(document.getElementById("ciP").value)||0;
+  const r=Number(document.getElementById("ciR").value)/100/12;
+  const months=(Number(document.getElementById("ciY").value)||0)*12;
+  const m=Number(document.getElementById("ciM").value)||0;
+
+  const fvCurrent=P*Math.pow(1+r,months);
+  const fvMonthly=r===0?m*months:m*((Math.pow(1+r,months)-1)/r);
+  const fv=fvCurrent+fvMonthly;
+
+  document.getElementById("ciResult").innerHTML=`
+    <div class="eyebrow">Estimated future value</div>
+    <div class="big-number green">${money(fv)}</div>
+    <div class="muted" style="font-size:9px;margin-top:4px">
+      Illustrative mathematical projection.
+    </div>
+  `;
+}
+
+function inflationCalc(){
+
+  const P=Number(document.getElementById("infP").value)||0;
+  const r=Number(document.getElementById("infR").value)/100;
+  const y=Number(document.getElementById("infY").value)||0;
+
+  const future=P*Math.pow(1+r,y);
+
+  document.getElementById("infResult").innerHTML=`
+    <div class="eyebrow">Equivalent future cost</div>
+    <div class="big-number yellow">${money(future)}</div>
+    <div class="muted" style="font-size:9px;margin-top:4px">
+      Approximate amount needed to match today's purchasing power.
+    </div>
+  `;
+}
+
+function budgetCalc(){
+
+  const income=Number(document.getElementById("budIncome").value)||0;
+  const needs=Number(document.getElementById("budNeeds").value)||0;
+  const goals=Number(document.getElementById("budGoals").value)||0;
+  const flex=Number(document.getElementById("budFlex").value)||0;
+
+  const total=needs+goals+flex;
+
+  document.getElementById("budResult").innerHTML=`
+    <div class="eyebrow">Allocation</div>
+    <div style="margin-top:10px;line-height:1.8;font-size:11px">
+      Needs: <strong>${money(income*needs/100)}</strong><br>
+      Goals: <strong>${money(income*goals/100)}</strong><br>
+      Flexible: <strong>${money(income*flex/100)}</strong><br>
+      Total allocation: <strong>${pct(total)}</strong>
+    </div>
+    ${total!==100?`<div class="action-box">Your entered allocation is not 100%. This is an input check, not a recommendation.</div>`:""}
+  `;
+}
+
+/* =========================================================
+   LOCAL GUIDE
+========================================================= */
+
+function askGuide(){
+
+  const input=document.getElementById("guideInput");
+  const q=input.value.trim();
+
+  if(!q)return;
+
+  const chat=document.getElementById("guideChat");
+
+  chat.insertAdjacentHTML("beforeend",`
+    <div class="msg user">${escapeHTML(q)}</div>
+  `);
+
+  const lower=q.toLowerCase();
+  let answer="";
+
+  const r=receivableTotals();
+  const runway=emergencyRunway();
+  const t=totals();
+
+  if(lower.includes("biggest") || lower.includes("problem")){
+    const issues=[];
+
+    if(r.overdue>0)issues.push(`${money(r.overdue)} overdue receivables`);
+    if(runway<data.emergency.target)issues.push(`reserve below ${data.emergency.target} months`);
+    if(monthlySurplus()<0)issues.push("negative monthly cash flow");
+    if(data.debt.payment/data.debt.income>.15)issues.push("meaningful debt payment pressure");
+
+    answer=issues.length
+      ? `Based on the local rules, the current pressure points are: ${issues.join(", ")}. Open Problem Center to inspect the impact and next action.`
+      : "The current rules do not detect a major pressure point. You can stress-test a future purchase in Decision Engine.";
+  }
+  else if(lower.includes("runway")){
+    answer=`Your current emergency runway is approximately ${monthsText(runway)}. That is calculated as reserve ${money(data.emergency.current)} divided by essential monthly expenses ${money(data.emergency.essential)}.`;
+  }
+  else if(lower.includes("receivable") || lower.includes("stuck")){
+    answer=`You currently have ${money(r.outstanding)} in outstanding receivables, including ${money(r.overdue)} overdue. The Receivables module can turn these into follow-up actions.`;
+  }
+  else if(lower.includes("net worth")){
+    answer=`Your modeled net worth is ${money(t.netWorth)}, based on ${money(t.assets)} of assets and ${money(t.liabilities)} of liabilities.`;
+  }
+  else if(lower.includes("goal") && (lower.includes("5000") || lower.includes("increase"))){
+    const g=data.goals[0];
+
+    if(g){
+      const current=goalProjection(g,g.monthly);
+      const plus=goalProjection(g,g.monthly+5000);
+      answer=`For "${g.name}", adding ₹5,000/month changes the modeled projected corpus from ${money(current.projected)} to ${money(plus.projected)} over ${g.years} years, under the same return assumption. This is an illustration, not a guaranteed outcome.`;
+    }
+  }
+  else if(lower.includes("cash") || lower.includes("surplus")){
+    answer=`Your modeled monthly surplus is ${money(monthlySurplus())} before the one-time cash-flow event. Open Cash Flow to see the six-month forecast.`;
+  }
+  else if(lower.includes("debt")){
+    const ratio=data.debt.payment/data.debt.income*100;
+    answer=`Your debt model has ${money(data.debt.total)} outstanding, ${money(data.debt.payment)} monthly payment and a ${pct(ratio)} payment-to-income ratio.`;
+  }
+  else{
+    answer=`I can currently analyze your stored Finora data for cash flow, runway, receivables, goals, net worth and debt. Try asking about one of those.`;
+  }
+
+  setTimeout(()=>{
+    chat.insertAdjacentHTML("beforeend",`
+      <div class="msg ai">${escapeHTML(answer)}</div>
+    `);
+    chat.scrollTop=chat.scrollHeight;
+  },120);
+
+  input.value="";
+}
+
+/* =========================================================
+   DATA MANAGEMENT
+========================================================= */
+
+function openDataModal(){
+
+  showModal(`
+    <div class="modal-head">
+      <div>
+        <div class="eyebrow">Finora data</div>
+        <h2 style="margin:6px 0">Local data control</h2>
+      </div>
+      <button class="icon-btn" onclick="closeModal()">×</button>
+    </div>
+
+    <p class="muted" style="font-size:11px;line-height:1.7">
+      Finora currently stores its data in this browser using localStorage.
+      Export your data before clearing browser storage or moving to another device.
+    </p>
+
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:18px">
+      <button class="primary-btn" onclick="exportData()">Export JSON</button>
+      <button class="ghost-btn" onclick="document.getElementById('importFile').click()">Import JSON</button>
+      <button class="ghost-btn" onclick="resetData()">Reset demo data</button>
+    </div>
+
+    <input id="importFile" type="file" accept=".json,application/json" style="display:none" onchange="importData(event)">
+
+    <div class="action-box" style="margin-top:18px">
+      Prototype note: bank syncing, live market prices, automated invoice collection and real AI require backend/API integrations and are intentionally not faked here.
+    </div>
+  `);
+}
+
+function exportData(){
+
+  const blob=new Blob(
+    [JSON.stringify(data,null,2)],
+    {type:"application/json"}
+  );
+
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+
+  a.href=url;
+  a.download="finora-data.json";
+  a.click();
+
+  URL.revokeObjectURL(url);
+  toast("Data exported");
+}
+
+function importData(event){
+
+  const file=event.target.files[0];
+  if(!file)return;
+
+  const reader=new FileReader();
+
+  reader.onload=e=>{
+    try{
+      const parsed=JSON.parse(e.target.result);
+
+      if(!parsed || typeof parsed!=="object"){
+        throw new Error();
+      }
+
+      data=deepMerge(structuredClone(defaultData),parsed);
+      save();
+
+      closeModal();
+      renderPage("dashboard");
+      renderDashboard();
+
+      toast("Data imported");
+    }catch{
+      toast("Invalid JSON file");
+    }
+  };
+
+  reader.readAsText(file);
+}
+
+function resetData(){
+
+  if(!confirm("Reset Finora to the demo dataset?"))return;
+
+  data=structuredClone(defaultData);
+  save();
+
+  closeModal();
+  renderDashboard();
+  toast("Demo data restored");
+}
+
+/* =========================================================
+   QUICK ACTION
+========================================================= */
+
+function openQuickAction(){
+
+  showModal(`
+    <div class="modal-head">
+      <div>
+        <div class="eyebrow">Quick action</div>
+        <h2 style="margin:6px 0">What do you want to add?</h2>
+      </div>
+      <button class="icon-btn" onclick="closeModal()">×</button>
+    </div>
+
+    <div class="grid grid-2">
+      <button class="panel" style="text-align:left" onclick="closeModal();openGoalModal()">
+        <strong>◎ New Goal</strong>
+        <p class="muted" style="font-size:10px">Create a funded financial goal.</p>
+      </button>
+
+      <button class="panel" style="text-align:left" onclick="closeModal();openInvoiceModal()">
+        <strong>₹ Invoice</strong>
+        <p class="muted" style="font-size:10px">Track money that should come in.</p>
+      </button>
+
+      <button class="panel" style="text-align:left" onclick="closeModal();openExpenseModal()">
+        <strong>− Expense</strong>
+        <p class="muted" style="font-size:10px">Track recurring cash commitments.</p>
+      </button>
+
+      <button class="panel" style="text-align:left" onclick="closeModal();go('decisions')">
+        <strong>◇ Decision</strong>
+        <p class="muted" style="font-size:10px">Stress-test a purchase.</p>
+      </button>
+    </div>
+  `);
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+function showModal(html){
+  document.getElementById("modalCard").innerHTML=html;
+  document.getElementById("modal").classList.add("open");
+}
+
+function closeModal(){
+  document.getElementById("modal").classList.remove("open");
+}
+
+document.getElementById("modal").addEventListener("click",e=>{
+  if(e.target.id==="modal")closeModal();
+});
+
+/* =========================================================
+   INIT
+========================================================= */
+
+function init(){
+
+  renderDashboard();
+
+  /* Profit inputs are demo defaults and should render immediately */
+  calculateProfit();
+
+  /* Emergency/debt page inputs */
+  renderEmergency();
+  renderDebt();
+
+  /* Keep dashboard numbers coherent */
+  document.getElementById("healthScore").textContent=
+    document.getElementById("healthScore").textContent||"76";
+}
+
+init();
+
+</script>
+
+</body>
+</html>
